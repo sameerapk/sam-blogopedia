@@ -2,14 +2,19 @@ import React,{useState} from 'react'
 import { Avatar, Button, Container, Grid, Paper, Typography } from '@material-ui/core'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import useStyles from './styles';
+import {useDispatch} from 'react-redux'
+import {useHistory} from 'react-router-dom'
 import {GoogleLogin} from 'react-google-login'
 import InputAuth from './InputAuth/InputAuth';
 import Icon from './Icon';
+import { AUTH } from '../../constants/actionTypes';
 
 const Auth = () => {
     const [isSignedUp, setIsSignedUp] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const classes = useStyles()
+    const dispatch = useDispatch();
+    const history = useHistory()
 
     const handleSubmit = (e) => {
         console.log('this i')
@@ -28,7 +33,15 @@ const Auth = () => {
     }
 
     const googleLoginSuccess = async(res) => {
-            console.log(res)
+        const result = res?.profileObj
+        const token = res?.tokenId
+        try {
+            dispatch({type: AUTH, payload: {result, token}})
+            history.push('/')
+        } catch (error) {
+            console.log(error)
+        }
+
     }
 
     const googleLoginFailure = (error) => {
