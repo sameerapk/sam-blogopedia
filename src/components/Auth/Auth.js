@@ -8,24 +8,40 @@ import {GoogleLogin} from 'react-google-login'
 import InputAuth from './InputAuth/InputAuth';
 import Icon from './Icon';
 import { AUTH } from '../../constants/actionTypes';
+import { signIn, signUp } from '../../actions/auth';
 
 const Auth = () => {
-    const [isSignedUp, setIsSignedUp] = useState(false)
+    const initialState = {
+        firstName: '', 
+        lastName: '', 
+        email: '',
+        password: '',
+        confirmPassword: '',
+
+    }
+    const [formData, setFormData] = useState(initialState)
+    const [isSignUp, setIsSignUp] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const classes = useStyles()
     const dispatch = useDispatch();
     const history = useHistory()
 
     const handleSubmit = (e) => {
-        console.log('this i')
+        e.preventDefault()
+        if(isSignUp) {
+            dispatch(signUp(formData))
+        }
+        else {
+            dispatch(signIn(formData))
+        }
     }
 
     const handleChange = (e) => {
-        
+        setFormData({...formData, [e.target.name]: e.target.value})
     }
 
     const switchMode = () => {
-        setIsSignedUp(!isSignedUp)
+        setIsSignUp(!isSignUp)
     }
 
     const handleShowPassword = () => {
@@ -54,20 +70,23 @@ const Auth = () => {
                 <Avatar className={classes.avatar}>
                     <LockOutlinedIcon />
                 </Avatar>
-                <Typography component='h1' variant='h5'>{isSignedUp ? 'Sign up': 'Sign in'}</Typography>
-                <form className={classes.form} onSubmit={handleSubmit}>
+                <Typography component='h1' variant='h5'>{isSignUp ? 'Sign up': 'Sign in'}</Typography>
+                <form className={classes.form} onSubmit={handleSubmit} autoComplete='off'>
                     <Grid container spacing={2}>
-                        {isSignedUp && (
+                        {isSignUp && (
                             <>
                             <InputAuth name="firstName" label="First Name" handleChange={handleChange} autoFocus half />
                             <InputAuth name="lastName" label="Last Name" handleChange={handleChange} half />
                             </>
                         )}
                         <InputAuth name="email" label="Email Address" handleChange={handleChange} type="email" />
-            <InputAuth name="password" label="Password" handleChange={handleChange} type={showPassword ? 'text' : 'password'} handleShowPassword={handleShowPassword} />
+                        <InputAuth name="password" label="Password" handleChange={handleChange} type={showPassword ? 'text' : 'password'} handleShowPassword={handleShowPassword} />
+                        { isSignUp && 
+                        <InputAuth name="confirmPassword" label="Confirm Password" handleChange={handleChange} type={showPassword ? 'text' : 'password'} handleShowPassword={handleShowPassword} />
+                        }
                     </Grid>
                     <Button type="submit" fullWidth variant="contained" color="primary" className={classes.submit}>
-            { isSignedUp ? 'Sign Up' : 'Sign In' }
+            { isSignUp ? 'Sign Up' : 'Sign In' }
           </Button>
           <GoogleLogin 
           clientId='663586907072-hassmvffvfi3b7qtthm99r8q4nt51nt7.apps.googleusercontent.com'
@@ -90,7 +109,7 @@ const Auth = () => {
           <Grid container justify="flex-end">
             <Grid item>
               <Button onClick={switchMode}>
-                { isSignedUp ? 'Already have an account? Sign in' : "Don't have an account? Sign Up" }
+                { isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign Up" }
               </Button>
             </Grid>
           </Grid>
